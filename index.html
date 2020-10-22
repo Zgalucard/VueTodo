@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo list</title>
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/main.css">
+</head>
+
+<body>
+    <div id="app">
+
+        <!-- header -->
+        <div class="container">
+            <div class="row mt-4 mb-4">
+                <!-- search -->
+                <div class="col-12 col-lg-7">
+                    <div class="search-group">
+                        <div class="input-group position-relative pl-0 mt-4 mt-lg-0">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text bg-transparent border-0">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                            </div>
+                            <input class="form-control my-0 py-1 pl-5" type="text" v-model="search" placeholder="Поиск по задачам">
+                        </div>
+                    </div>
+                </div>
+                <!-- / search -->
+
+                <!-- navigation -->
+                <div class="col-12 col-lg-5 mt-3 mt-lg-0 d-flex flex-column flex-sm-row align-items-center justify-content-center justify-content-lg-end">
+                    <a href="#/active" :class="{ active: visibility == 'active' }" class="link mr-sm-4 text-decoration-none">Активные</a>
+                    <a href="#/completed" :class="{ active: visibility == 'completed' }" class="link text-decoration-none">Выполненные</a>
+                </div>
+                <!-- / navigation -->
+            </div>
+        </div>
+        <!-- / header -->
+
+        <div class="container">
+
+            <button class="btn px-3 mb-3 py-2 rounded-pill btn-light" v-on:click="addTodo">
+                <i class="fa fa-plus-circle text-muted mr-3" aria-hidden="true"></i>Добавить задачу
+            </button>
+
+            <!-- Task -->
+            <div class="task px-3 py-2" v-show="todos.length" v-cloak v-for="todo in filteredTodos" :key="todo.id" :class="{ completed: todo.completed, editing: todo == editedTodo }">
+
+                <div class="view d-flex align-items-baseline">
+                    <div class="icon pr-2 d-flex">
+                        <i class="far fa-circle"></i>
+                        <i class="fas fa-check"></i>
+                        <input class="checkbox_completed" type="checkbox" v-model="todo.completed" />
+                    </div>
+                    <input class="task-name" type="text" placeholder="Введите название" v-model="todo.title" v-todo-focus="todo == editedTodo" @blur="doneEdit(todo)" @keyup.enter="doneEdit(todo)" @keyup.esc="cancelEdit(todo)" />
+
+                    <span class="time ml-2">{{ todo.date }} {{ todo.time }}</span>
+                    <i class="ml-2 fas fa-angle-down subtasksShowBtn" v-on:click="todo.subtasksShow = !todo.subtasksShow" v-bind:class="{ rotate: todo.subtasksShow }"></i>
+                    <i class="ml-3 far fa-trash-alt" @click="removeTodo(todo)"></i>
+                </div>
+
+                <div class="task-detail pl-4 pb-3" v-show="todo.subtasksShow">
+
+                   <div class="dflex align-items-baseline mb-0 mt-2 mb-2" v-show="todo.taskDate == false">
+                        <i class="fa fa-calendar-alt text-muted mr-3" aria-hidden="true"></i>
+                        <button class="btn px-3 py-2 rounded-pill btn-light" v-on:click="todo.taskDate = !todo.taskDate">
+                            Добавить дату и время
+                        </button>
+                    </div>
+                    <!-- task date -->
+                    <div class="dflex align-items-baseline mb-0 mt-2 mb-2" v-show="todo.taskDate">
+                        <i class="fa fa-calendar-alt text-muted mr-3" aria-hidden="true"></i>
+
+                        <div class="w-100">
+                            <div class="d-flex w-100">
+                                <input type="date" v-model="todo.date" class="form-control w-100" v-todo-focus="todo == editedTodo" @blur="doneEdit(todo)" @keyup.enter="doneEdit(todo)" @keyup.esc="cancelEdit(todo)">
+                                <input type="time" v-model="todo.time" class="form-control ml-2" v-todo-focus="todo == editedTodo" @blur="doneEdit(todo)" @keyup.enter="doneEdit(todo)" @keyup.esc="cancelEdit(todo)">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /task date -->
+                    <!-- subTask -->
+                    <div class="subtasks">
+                        <div class="task d-flex align-items-baseline" v-if="subTodo.parenId == todo.id" v-cloak v-for="subTodo in subTodos" :class="{ completed: subTodo.completed }">
+                            <p class="text-muted mr-2 mb-0 mt-2 mb-2" role="button">
+                                <i class="fas fa-reply" aria-hidden="true"></i>
+                            </p>
+
+                            <div class="icon pr-2 d-flex">
+                                <i class="far fa-circle"></i>
+                                <i class="fas fa-check"></i>
+                                <input class="checkbox_completed" type="checkbox" v-model="subTodo.completed" />
+                            </div>
+                            <input class="task-name" type="text" placeholder="Введите название" v-model="subTodo.subTitle" />
+                            <span class="time ml-2"></span>
+                            <i class="ml-3 far fa-trash-alt" @click="removeSubTodo(subTodo)"></i>
+                        </div>
+                    </div>
+                    <!-- /subTask -->
+                    <div>
+                        <button class="btn btn-sm ml-4 mt-2 btn-secondary" @click="addSubTodo(todo)">
+                            Добавить подзадачу
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+            <!-- /Task -->
+
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="assets/js/app.js"></script>
+</body>
+
+</html>
